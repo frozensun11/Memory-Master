@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Memory Master Series</title>
+<meta name="description" content="A collector's album of learning games — master a subject, flip the cards, complete the collection.">
+<meta name="theme-color" content="#16233F">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Old+Standard+TT:wght@400;700&family=Public+Sans:wght@400;600;700&family=Spline+Sans+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16233F; --blue:#2B4C8C; --green:#2F6B4F; --red:#A63A2B; --gold:#B8862B;
+  --paper:#EDF0F4; --card:#F7F8FA; --line:#C9D0DA; --muted:#5A6474;
+  --display:'Old Standard TT', serif; --body:'Public Sans', sans-serif; --mono:'Spline Sans Mono', monospace;
+}
+*{margin:0; padding:0; box-sizing:border-box;}
+body{
+  background:var(--paper); color:var(--ink); font-family:var(--body);
+  min-height:100vh; padding:28px 16px calc(48px + env(safe-area-inset-bottom));
+}
+.wrap{max-width:680px; margin:0 auto;}
+
+/* ---------- masthead ---------- */
+header{text-align:center; border-bottom:3px double var(--ink); padding-bottom:20px; margin-bottom:26px;}
+.eyebrow{font-family:var(--mono); font-size:.62rem; letter-spacing:.28em; text-transform:uppercase; color:var(--gold);}
+h1{font-family:var(--display); font-size:clamp(1.7rem, 6vw, 2.4rem); line-height:1.1; margin:8px 0 6px;}
+.sub{font-size:.86rem; color:var(--muted); max-width:400px; margin:0 auto; line-height:1.5;}
+
+/* ---------- album shelf ---------- */
+.shelf{display:grid; gap:16px;}
+.series{
+  position:relative; display:block; text-decoration:none; color:inherit;
+  background:var(--card); border:1.5px solid var(--ink); border-radius:10px;
+  padding:18px 18px 16px;
+  /* perforated stamp edge */
+  background-image:radial-gradient(circle at 8px 8px, transparent 0, transparent 100%);
+}
+.series::before{
+  content:''; position:absolute; inset:6px; border:1.5px dashed var(--line);
+  border-radius:6px; pointer-events:none;
+}
+a.series{transition:transform .15s ease, box-shadow .15s ease;}
+a.series:hover, a.series:focus-visible{transform:translateY(-2px); box-shadow:0 6px 18px rgba(22,35,63,.16);}
+a.series:focus-visible{outline:3px solid var(--blue); outline-offset:3px;}
+@media (prefers-reduced-motion: reduce){ a.series{transition:none;} a.series:hover{transform:none;} }
+.s-head{display:flex; align-items:baseline; justify-content:space-between; gap:10px; position:relative;}
+.s-no{font-family:var(--mono); font-size:.6rem; letter-spacing:.24em; text-transform:uppercase; color:var(--blue);}
+.s-status{font-family:var(--mono); font-size:.6rem; letter-spacing:.18em; text-transform:uppercase; color:var(--green); font-weight:600;}
+.s-title{font-family:var(--display); font-size:1.45rem; margin:6px 0 4px; position:relative;}
+.s-desc{font-size:.84rem; color:var(--muted); line-height:1.55; position:relative;}
+.s-cta{
+  display:inline-block; margin-top:12px; position:relative;
+  font-weight:700; font-size:.85rem; color:#fff; background:var(--ink);
+  border-radius:999px; padding:9px 18px;
+}
+
+/* unissued (coming soon) stamps */
+.series.unissued{opacity:.65; background:repeating-linear-gradient(-45deg, var(--card), var(--card) 14px, #EFF1F5 14px, #EFF1F5 15px);}
+.series.unissued .s-status{color:var(--muted);}
+.overprint{
+  position:absolute; top:50%; right:14px; transform:translateY(-50%) rotate(-8deg);
+  font-family:var(--mono); font-size:.66rem; letter-spacing:.3em; text-transform:uppercase;
+  color:var(--red); border:1.5px solid var(--red); border-radius:4px; padding:4px 8px; opacity:.75;
+}
+
+footer{margin-top:34px; text-align:center; font-family:var(--mono); font-size:.6rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); line-height:2;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">A collector's album of American knowledge</div>
+    <h1>The Memory Master Series</h1>
+    <p class="sub">Learning games built on spaced repetition. Master a subject, flip the cards, complete the collection.</p>
+  </header>
+
+  <div class="shelf">
+    <a class="series" href="./presidents/">
+      <div class="s-head"><span class="s-no">Series No. 1</span><span class="s-status">● Now playing</span></div>
+      <div class="s-title">The Presidents</div>
+      <p class="s-desc">All 47 presidencies — quizzes, timelines, trivia, full dossiers, a mystery hunt, and 47 portrait cards to earn.</p>
+      <span class="s-cta">Open the game →</span>
+    </a>
+
+    <div class="series unissued">
+      <span class="overprint">Unissued</span>
+      <div class="s-head"><span class="s-no">Series No. 2</span><span class="s-status">In preparation</span></div>
+      <div class="s-title">The States</div>
+      <p class="s-desc">All 50, in order of admission to the Union — collect the map, state by state.</p>
+    </div>
+
+    <div class="series unissued">
+      <span class="overprint">Unissued</span>
+      <div class="s-head"><span class="s-no">Series No. 3</span><span class="s-status">Planned</span></div>
+      <div class="s-title">The Supreme Court</div>
+      <p class="s-desc">Landmark cases in order — the human stories behind the case names.</p>
+    </div>
+  </div>
+
+  <footer>Collect · Master · Flip<br>New series added as they are printed</footer>
+</div>
+</body>
+</html>
