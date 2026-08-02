@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Judicial Memory Master</title>
+<style>
+:root{
+  --marble:#EDE9DF;
+  --ink:#1E2430;
+  --oxblood:#7A2E2E;
+  --slate:#3F4E6B;
+  --brass:#A8842C;
+  --mastered:#3E6B4F;
+  --card:#FBF9F2;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{
+  font-family:Georgia,'Times New Roman',serif;
+  background:var(--marble);
+  background-image:
+    linear-gradient(90deg, rgba(63,78,107,.05) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(63,78,107,.03) 1px, transparent 1px);
+  background-size:120px 100%, 24px 100%;
+  color:var(--ink);
+  min-height:100vh;
+  padding-bottom:70px;
+}
+header{text-align:center;padding:26px 16px 8px;}
+header .gavel{font-size:1.6rem;}
+header h1{
+  font-size:clamp(1.5rem,4.5vw,2.3rem);
+  letter-spacing:.04em;
+}
+header h1 span{color:var(--oxblood);}
+header .sub{
+  font-family:'Trebuchet MS',Verdana,sans-serif;
+  font-size:.78rem;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--slate);
+  margin-top:5px;
+}
+nav{
+  display:flex;justify-content:center;gap:6px;flex-wrap:wrap;
+  padding:14px 10px;position:sticky;top:0;background:var(--marble);
+  z-index:10;border-bottom:2px solid var(--ink);
+}
+nav button{
+  font-family:'Trebuchet MS',Verdana,sans-serif;
+  font-size:.8rem;letter-spacing:.06em;
+  padding:8px 13px;border:2px solid var(--ink);
+  background:var(--card);color:var(--ink);cursor:pointer;
+  border-radius:3px;transition:all .15s;
+}
+nav button.active{background:var(--ink);color:var(--card);}
+nav button:focus-visible{outline:3px solid var(--brass);outline-offset:2px;}
+main{max-width:760px;margin:0 auto;padding:18px 14px;}
+.panel{display:none;}
+.panel.active{display:block;animation:fade .25s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+h2.section{
+  font-size:1.15rem;text-align:center;margin:8px 0 14px;
+  letter-spacing:.05em;
+}
+h2.section::before,h2.section::after{content:" ⚖ ";color:var(--brass);font-size:.9rem;}
+
+/* ERA blocks (Learn) */
+.era{
+  background:var(--card);border:2px solid var(--ink);border-radius:6px;
+  margin-bottom:14px;overflow:hidden;
+}
+.era-head{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 14px;cursor:pointer;background:var(--ink);color:var(--card);
+}
+.era-head h3{font-size:1rem;letter-spacing:.04em;}
+.era-head .range{font-family:'Trebuchet MS',sans-serif;font-size:.72rem;letter-spacing:.12em;color:var(--brass);}
+.era-body{display:none;padding:8px 12px 14px;}
+.era.open .era-body{display:block;}
+.jrow{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:10px 4px;border-bottom:1px dashed rgba(30,36,48,.25);
+}
+.jrow:last-child{border-bottom:none;}
+.jnum{
+  min-width:44px;height:44px;border:2px solid var(--oxblood);border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:var(--oxblood);font-weight:bold;background:var(--card);flex-shrink:0;
+}
+.jnum .n{font-size:1.05rem;line-height:1;}
+.jnum .l{font-size:.5rem;letter-spacing:.05em;font-family:'Trebuchet MS',sans-serif;}
+.jrow h4{font-size:.98rem;}
+.jrow .meta{font-family:'Trebuchet MS',sans-serif;font-size:.72rem;color:var(--slate);letter-spacing:.05em;margin:2px 0 3px;}
+.jrow .hook{font-size:.85rem;font-style:italic;color:#4a4438;}
+
+/* QUIZ */
+.qcard{
+  background:var(--card);border:2px solid var(--ink);border-radius:6px;
+  padding:18px 16px;box-shadow:4px 4px 0 rgba(30,36,48,.18);
+}
+.qtop{
+  display:flex;justify-content:space-between;font-family:'Trebuchet MS',sans-serif;
+  font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);
+  margin-bottom:12px;
+}
+.qtext{font-size:1.12rem;text-align:center;margin:6px 0 18px;line-height:1.45;}
+.opts{display:grid;gap:9px;}
+.opts button{
+  font-family:Georgia,serif;font-size:1rem;padding:12px;border:2px solid var(--ink);
+  background:#fff;border-radius:4px;cursor:pointer;transition:all .12s;text-align:center;
+}
+.opts button:hover{background:var(--marble);}
+.opts button:focus-visible{outline:3px solid var(--brass);outline-offset:2px;}
+.opts button.right{background:var(--mastered);color:#fff;border-color:var(--mastered);}
+.opts button.wrong{background:var(--oxblood);color:#fff;border-color:var(--oxblood);}
+.opts button:disabled{cursor:default;}
+.verdict{
+  margin-top:14px;padding:12px;border-radius:4px;font-size:.9rem;line-height:1.5;display:none;
+}
+.verdict.show{display:block;}
+.verdict.good{background:rgba(62,107,79,.14);border-left:4px solid var(--mastered);}
+.verdict.bad{background:rgba(122,46,46,.12);border-left:4px solid var(--oxblood);}
+.nextbtn{
+  margin:16px auto 0;display:block;font-family:'Trebuchet MS',sans-serif;
+  font-size:.85rem;letter-spacing:.08em;padding:10px 26px;border:2px solid var(--ink);
+  background:var(--ink);color:var(--card);border-radius:4px;cursor:pointer;
+}
+.streakbar{
+  text-align:center;font-family:'Trebuchet MS',sans-serif;font-size:.8rem;
+  letter-spacing:.08em;color:var(--slate);margin-bottom:10px;
+}
+.streakbar b{color:var(--oxblood);}
+
+/* ORDER mode */
+.pool,.bench{
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
+  min-height:56px;padding:10px;border-radius:6px;margin-bottom:12px;
+}
+.pool{background:rgba(63,78,107,.08);border:2px dashed var(--slate);}
+.bench{background:var(--card);border:2px solid var(--ink);}
+.chip{
+  font-size:.88rem;padding:9px 13px;border:2px solid var(--ink);background:#fff;
+  border-radius:4px;cursor:pointer;transition:all .12s;
+}
+.chip:hover{background:var(--marble);}
+.chip.placed{background:var(--ink);color:var(--card);cursor:default;}
+.chip.good{background:var(--mastered);border-color:var(--mastered);color:#fff;}
+.chip.bad{background:var(--oxblood);border-color:var(--oxblood);color:#fff;}
+.order-label{
+  text-align:center;font-family:'Trebuchet MS',sans-serif;font-size:.72rem;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--slate);margin-bottom:6px;
+}
+
+/* COLLECTION stamps */
+.stampgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:12px;}
+.stamp{
+  background:var(--card);border:2px solid var(--ink);border-radius:6px;padding:12px;
+  position:relative;overflow:hidden;
+}
+.stamp.mastered{border-color:var(--brass);box-shadow:0 0 0 2px var(--brass) inset;}
+.stamp.mastered::after{
+  content:"MASTERED";position:absolute;top:12px;right:-30px;transform:rotate(38deg);
+  background:var(--brass);color:#fff;font-family:'Trebuchet MS',sans-serif;
+  font-size:.55rem;letter-spacing:.18em;padding:3px 32px;
+}
+.stamp-inner{display:flex;gap:10px;align-items:flex-start;}
+.stamp .ordinal{
+  min-width:46px;height:46px;border:2px double var(--oxblood);border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:var(--oxblood);flex-shrink:0;
+}
+.stamp .ordinal .num{font-size:1.1rem;font-weight:bold;line-height:1;}
+.stamp .ordinal .lbl{font-size:.48rem;font-family:'Trebuchet MS',sans-serif;letter-spacing:.04em;}
+.stamp h3{font-size:.95rem;}
+.stamp .year{font-family:'Trebuchet MS',sans-serif;font-size:.7rem;color:var(--slate);letter-spacing:.06em;margin:2px 0 4px;}
+.stamp .hook{font-size:.78rem;font-style:italic;color:#55503f;line-height:1.35;}
+.coll-sub{
+  text-align:center;font-family:'Trebuchet MS',sans-serif;font-size:.75rem;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--slate);margin:20px 0 10px;
+}
+
+/* PROGRESS */
+.statrow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:18px;}
+.statbox{
+  background:var(--card);border:2px solid var(--ink);border-radius:6px;
+  padding:12px 18px;text-align:center;min-width:105px;
+}
+.statbox .big{font-size:1.5rem;font-weight:bold;color:var(--oxblood);}
+.statbox .cap{font-family:'Trebuchet MS',sans-serif;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);margin-top:3px;}
+.mbar{margin-bottom:12px;}
+.mbar .lab{display:flex;justify-content:space-between;font-family:'Trebuchet MS',sans-serif;font-size:.75rem;letter-spacing:.06em;margin-bottom:4px;}
+.mbar .track{height:14px;background:rgba(30,36,48,.12);border:1px solid var(--ink);border-radius:8px;overflow:hidden;}
+.mbar .fill{height:100%;background:var(--slate);border-radius:8px;transition:width .4s;}
+.mbar.gold .fill{background:var(--brass);}
+.resetbtn{
+  margin:22px auto 0;display:block;font-family:'Trebuchet MS',sans-serif;font-size:.75rem;
+  letter-spacing:.08em;padding:8px 18px;border:2px solid var(--oxblood);background:transparent;
+  color:var(--oxblood);border-radius:4px;cursor:pointer;
+}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important;}}
+@media (max-width:480px){
+  nav button{padding:7px 9px;font-size:.72rem;}
+  .stampgrid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="gavel">⚖️</div>
+  <h1>Judicial <span>Memory Master</span></h1>
+  <div class="sub">The Supreme Court · Chiefs &amp; The Current Nine</div>
+</header>
+
+<nav>
+  <button data-tab="learn" class="active">📚 Learn</button>
+  <button data-tab="quiz">⚡ Quiz</button>
+  <button data-tab="bench">🏛️ The Nine</button>
+  <button data-tab="order">🔢 Order</button>
+  <button data-tab="collection">📜 Collection</button>
+  <button data-tab="progress">🏆 Progress</button>
+</nav>
+
+<main>
+  <section id="learn" class="panel active">
+    <h2 class="section">Study by Era</h2>
+    <div id="eras"></div>
+  </section>
+
+  <section id="quiz" class="panel">
+    <h2 class="section">Chief Justice Quiz</h2>
+    <div class="streakbar">Streak: <b id="streak">0</b> · Best: <b id="best">0</b></div>
+    <div class="qcard">
+      <div class="qtop"><span id="q-type">—</span><span id="q-count"></span></div>
+      <div class="qtext" id="q-text">Press Start to open the session.</div>
+      <div class="opts" id="q-opts"></div>
+      <div class="verdict" id="q-verdict"></div>
+      <button class="nextbtn" id="q-next">Start ▸</button>
+    </div>
+  </section>
+
+  <section id="bench" class="panel">
+    <h2 class="section">The Current Nine</h2>
+    <div class="streakbar">Bench streak: <b id="bstreak">0</b> · Best: <b id="bbest">0</b></div>
+    <div class="qcard">
+      <div class="qtop"><span id="b-type">—</span><span id="b-count"></span></div>
+      <div class="qtext" id="b-text">Quiz yourself on today's sitting Justices — seniority, confirmation years, and appointing presidents.</div>
+      <div class="opts" id="b-opts"></div>
+      <div class="verdict" id="b-verdict"></div>
+      <button class="nextbtn" id="b-next">Start ▸</button>
+    </div>
+  </section>
+
+  <section id="order" class="panel">
+    <h2 class="section">Order the Bench</h2>
+    <p style="text-align:center;font-size:.88rem;margin-bottom:12px;">Tap the Chief Justices in the order they served. Get all five right for a perfect round!</p>
+    <div class="order-label">Your ruling (earliest → latest)</div>
+    <div class="bench" id="o-bench"></div>
+    <div class="order-label">The pool</div>
+    <div class="pool" id="o-pool"></div>
+    <div class="verdict" id="o-verdict" style="text-align:center;"></div>
+    <button class="nextbtn" id="o-next">New Round ▸</button>
+  </section>
+
+  <section id="collection" class="panel">
+    <h2 class="section">Stamp Collection</h2>
+    <p style="text-align:center;font-size:.85rem;margin-bottom:14px;">Answer questions correctly to climb each Justice's mastery ladder. Reach the top and their stamp turns gold.</p>
+    <div class="coll-sub">The 17 Chief Justices</div>
+    <div class="stampgrid" id="stamps-chief"></div>
+    <div class="coll-sub">The Current Nine (by seniority)</div>
+    <div class="stampgrid" id="stamps-nine"></div>
+  </section>
+
+  <section id="progress" class="panel">
+    <h2 class="section">Chambers Report</h2>
+    <div class="statrow">
+      <div class="statbox"><div class="big" id="p-answered">0</div><div class="cap">Answered</div></div>
+      <div class="statbox"><div class="big" id="p-acc">—</div><div class="cap">Accuracy</div></div>
+      <div class="statbox"><div class="big" id="p-mastered">0/26</div><div class="cap">Mastered</div></div>
+      <div class="statbox"><div class="big" id="p-best">0</div><div class="cap">Best Streak</div></div>
+    </div>
+    <div id="p-bars"></div>
+    <button class="resetbtn" id="p-reset">Reset all progress</button>
+  </section>
+</main>
+
+<script>
+/* ---------- DATA ---------- */
+const ERAS = [
+ {name:"The Founding Court", range:"1789–1835", ids:[1,2,3,4]},
+ {name:"Union in Crisis", range:"1836–1873", ids:[5,6]},
+ {name:"The Gilded Bench", range:"1874–1920", ids:[7,8,9]},
+ {name:"The Marble Palace", range:"1921–1952", ids:[10,11,12,13]},
+ {name:"The Rights Revolution", range:"1953–2004", ids:[14,15,16]},
+ {name:"The Roberts Court", range:"2005–today", ids:[17]}
+];
+
+const CHIEFS = [
+ {n:1, name:"John Jay", year:1789, pres:"George Washington",
+  hook:"Co-wrote the Federalist Papers — then quit the Court to be Governor of New York, which he thought was the better job."},
+ {n:2, name:"John Rutledge", year:1795, pres:"George Washington",
+  hook:"A recess appointment the Senate then rejected — he served only about four months, the shortest chief justiceship ever."},
+ {n:3, name:"Oliver Ellsworth", year:1796, pres:"George Washington",
+  hook:"Principal author of the Judiciary Act of 1789 — he basically wrote the blueprint for the federal courts he then led."},
+ {n:4, name:"John Marshall", year:1801, pres:"John Adams",
+  hook:"The Great Chief Justice — 34 years, Marbury v. Madison, and the invention of judicial review as we know it."},
+ {n:5, name:"Roger B. Taney", year:1836, pres:"Andrew Jackson",
+  hook:"First Catholic chief justice — remembered forever for the disastrous Dred Scott decision that helped ignite the Civil War."},
+ {n:6, name:"Salmon P. Chase", year:1864, pres:"Abraham Lincoln",
+  hook:"Lincoln's Treasury Secretary (his face was on the $10,000 bill) — presided over Andrew Johnson's impeachment trial."},
+ {n:7, name:"Morrison Waite", year:1874, pres:"Ulysses S. Grant",
+  hook:"Grant's fourth choice for the job — his Munn v. Illinois opinion said states may regulate private business in the public interest."},
+ {n:8, name:"Melville Fuller", year:1888, pres:"Grover Cleveland",
+  hook:"Famous mustache, famous ritual: he started the 'conference handshake' where every justice shakes every other's hand."},
+ {n:9, name:"Edward D. White", year:1910, pres:"William Howard Taft",
+  hook:"First associate justice ever promoted to chief — author of the antitrust 'rule of reason.'"},
+ {n:10, name:"William Howard Taft", year:1921, pres:"Warren G. Harding",
+  hook:"The only person to be both President AND Chief Justice — and he lobbied for the Court's own marble building."},
+ {n:11, name:"Charles Evans Hughes", year:1930, pres:"Herbert Hoover",
+  hook:"Left the Court to run for president in 1916, lost, then came back as chief — and outmaneuvered FDR's court-packing plan."},
+ {n:12, name:"Harlan Fiske Stone", year:1941, pres:"Franklin D. Roosevelt",
+  hook:"A Republican elevated by FDR — his 'Footnote Four' quietly launched modern civil-rights jurisprudence."},
+ {n:13, name:"Fred M. Vinson", year:1946, pres:"Harry S. Truman",
+  hook:"Died in 1953 with Brown v. Board still undecided — his death cleared the way for the Warren Court."},
+ {n:14, name:"Earl Warren", year:1953, pres:"Dwight D. Eisenhower",
+  hook:"Former California governor who delivered a unanimous Brown v. Board — Eisenhower called appointing him his biggest mistake."},
+ {n:15, name:"Warren E. Burger", year:1969, pres:"Richard Nixon",
+  hook:"Nixon's pick — who then wrote United States v. Nixon, unanimously ordering Nixon to hand over the Watergate tapes."},
+ {n:16, name:"William Rehnquist", year:1986, pres:"Ronald Reagan",
+  hook:"Added four gold stripes to his robe sleeves (inspired by a Gilbert & Sullivan opera) and presided over Clinton's impeachment trial."},
+ {n:17, name:"John G. Roberts Jr.", year:2005, pres:"George W. Bush",
+  hook:"Youngest chief in two centuries — promised at his hearing to just 'call balls and strikes' like an umpire."}
+];
+
+const NINE = [
+ {s:1, name:"John G. Roberts Jr.", year:2005, pres:"George W. Bush", role:"Chief Justice",
+  hook:"The Chief always sits first in seniority, no matter when appointed."},
+ {s:2, name:"Clarence Thomas", year:1991, pres:"George H. W. Bush", role:"Associate Justice",
+  hook:"Longest-serving current member — on the bench since 1991."},
+ {s:3, name:"Samuel A. Alito Jr.", year:2006, pres:"George W. Bush", role:"Associate Justice",
+  hook:"Replaced Sandra Day O'Connor after serving 16 years as a federal appeals judge."},
+ {s:4, name:"Sonia Sotomayor", year:2009, pres:"Barack Obama", role:"Associate Justice",
+  hook:"First Hispanic and Latina justice — grew up in a Bronx housing project."},
+ {s:5, name:"Elena Kagan", year:2010, pres:"Barack Obama", role:"Associate Justice",
+  hook:"Former Solicitor General and Harvard Law dean — had never been a judge before joining the Court."},
+ {s:6, name:"Neil M. Gorsuch", year:2017, pres:"Donald Trump", role:"Associate Justice",
+  hook:"Holds the seat once held by Antonin Scalia — and once clerked for Justice Kennedy, whom he later joined on the bench."},
+ {s:7, name:"Brett M. Kavanaugh", year:2018, pres:"Donald Trump", role:"Associate Justice",
+  hook:"Succeeded Anthony Kennedy — the justice he clerked for."},
+ {s:8, name:"Amy Coney Barrett", year:2020, pres:"Donald Trump", role:"Associate Justice",
+  hook:"Clerked for Scalia; confirmed just eight days before the 2020 election."},
+ {s:9, name:"Ketanji Brown Jackson", year:2022, pres:"Joe Biden", role:"Associate Justice",
+  hook:"First Black woman on the Court — and as junior justice, she answers the door during conference."}
+];
+
+/* ---------- STATE ---------- */
+const KEY='judicialMemoryMaster';
+let mem={};
+function loadS(){
+  try{ return JSON.parse(localStorage.getItem(KEY)) || {}; }
+  catch(e){ return mem; }
+}
+function saveS(){
+  try{ localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch(e){ mem=S; }
+}
+let S = loadS();
+S.boxes = S.boxes || {};        // chief boxes: c1..c17
+S.nboxes = S.nboxes || {};      // nine boxes: s1..s9
+S.answered = S.answered || 0;
+S.correct = S.correct || 0;
+S.streak = S.streak || 0;
+S.best = S.best || 0;
+S.bstreak = S.bstreak || 0;
+S.bbest = S.bbest || 0;
+S.qcount = S.qcount || 0;
+S.bcount = S.bcount || 0;
+
+const cbox = n => S.boxes['c'+n] || 0;
+const nbox = s => S.nboxes['s'+s] || 0;
+function bump(map,key,ok){
+  const cur = map[key]||0;
+  map[key] = ok ? Math.min(5,cur+1) : Math.max(0,cur-1);
+}
+const shuffle = a => a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
+
+/* ---------- NAV ---------- */
+document.querySelectorAll('nav button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById(b.dataset.tab).classList.add('active');
+    if(b.dataset.tab==='collection') renderCollection();
+    if(b.dataset.tab==='progress') renderProgress();
+  });
+});
+
+/* ---------- LEARN ---------- */
+function renderLearn(){
+  const wrap=document.getElementById('eras');
+  wrap.innerHTML = ERAS.map((e,i)=>`
+    <div class="era ${i===0?'open':''}">
+      <div class="era-head"><h3>${e.name}</h3><span class="range">${e.range}</span></div>
+      <div class="era-body">
+        ${e.ids.map(id=>{const c=CHIEFS[id-1];return `
+          <div class="jrow">
+            <div class="jnum"><span class="n">${c.n}</span><span class="l">CHIEF</span></div>
+            <div>
+              <h4>${c.name}</h4>
+              <div class="meta">Chief Justice from ${c.year} · Appointed by ${c.pres}</div>
+              <div class="hook">${c.hook}</div>
+            </div>
+          </div>`;}).join('')}
+      </div>
+    </div>`).join('');
+  wrap.querySelectorAll('.era-head').forEach(h=>{
+    h.addEventListener('click',()=>h.parentElement.classList.toggle('open'));
+  });
+}
+renderLearn();
+
+/* ---------- CHIEF QUIZ ---------- */
+function weightedChief(){
+  const pool=[];
+  CHIEFS.forEach(c=>{
+    const w = 6 - Math.min(5,cbox(c.n)); // low box => more weight
+    for(let i=0;i<w;i++) pool.push(c);
+  });
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function otherChiefs(c,k){
+  return shuffle(CHIEFS.filter(x=>x.n!==c.n)).slice(0,k);
+}
+const QTYPES=['name2num','num2name','year','appointer','successor'];
+let curQ=null;
+
+function buildChiefQ(c){
+  let types=QTYPES.slice();
+  if(c.n===17) types=types.filter(t=>t!=='successor');
+  const t=types[Math.floor(Math.random()*types.length)];
+  let text,opts,correct,lbl;
+  if(t==='name2num'){
+    lbl='Name → Number';
+    text=`${c.name} was which Chief Justice in order?`;
+    correct=String(c.n);
+    const wrong=new Set();
+    while(wrong.size<3){const w=1+Math.floor(Math.random()*17);if(w!==c.n)wrong.add(w);}
+    opts=shuffle([correct,...[...wrong].map(String)]);
+  } else if(t==='num2name'){
+    lbl='Number → Name';
+    text=`Who was the #${c.n} Chief Justice of the United States?`;
+    correct=c.name;
+    opts=shuffle([c.name,...otherChiefs(c,3).map(x=>x.name)]);
+  } else if(t==='year'){
+    lbl='Year Appointed';
+    text=`In what year did ${c.name} become Chief Justice?`;
+    correct=String(c.year);
+    const wrong=new Set();
+    while(wrong.size<3){
+      const w=c.year + (Math.floor(Math.random()*13)-6);
+      if(w!==c.year && w>=1789) wrong.add(w);
+    }
+    opts=shuffle([correct,...[...wrong].map(String)]);
+  } else if(t==='appointer'){
+    lbl='Appointing President';
+    text=`Which president appointed ${c.name} as Chief Justice?`;
+    correct=c.pres;
+    const others=shuffle([...new Set(CHIEFS.filter(x=>x.pres!==c.pres).map(x=>x.pres))]).slice(0,3);
+    opts=shuffle([correct,...others]);
+  } else {
+    lbl='Succession';
+    const nxt=CHIEFS[c.n]; // next chief
+    text=`Who succeeded ${c.name} as Chief Justice?`;
+    correct=nxt.name;
+    opts=shuffle([nxt.name,...otherChiefs(nxt,3).map(x=>x.name)]);
+  }
+  return {c,t,text,opts,correct,lbl};
+}
+
+function chiefNext(){
+  curQ=buildChiefQ(weightedChief());
+  S.qcount++; saveS();
+  document.getElementById('q-type').textContent=curQ.lbl;
+  document.getElementById('q-count').textContent='Question '+S.qcount;
+  document.getElementById('q-text').textContent=curQ.text;
+  const v=document.getElementById('q-verdict'); v.className='verdict'; v.innerHTML='';
+  const box=document.getElementById('q-opts'); box.innerHTML='';
+  curQ.opts.forEach(o=>{
+    const b=document.createElement('button');
+    b.textContent=o;
+    b.addEventListener('click',()=>chiefAnswer(b,o));
+    box.appendChild(b);
+  });
+  document.getElementById('q-next').textContent='Skip ▸';
+}
+function chiefAnswer(btn,val){
+  const ok = val===curQ.correct;
+  document.querySelectorAll('#q-opts button').forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===curQ.correct) b.classList.add('right');
+  });
+  if(!ok) btn.classList.add('wrong');
+  S.answered++; if(ok){S.correct++;S.streak++;S.best=Math.max(S.best,S.streak);}else{S.streak=0;}
+  bump(S.boxes,'c'+curQ.c.n,ok); saveS();
+  document.getElementById('streak').textContent=S.streak;
+  document.getElementById('best').textContent=S.best;
+  const v=document.getElementById('q-verdict');
+  v.className='verdict show '+(ok?'good':'bad');
+  v.innerHTML = (ok?'<b>Sustained!</b> ':'<b>Overruled.</b> ') +
+    `${curQ.c.name} — Chief Justice #${curQ.c.n}, appointed ${curQ.c.year} by ${curQ.c.pres}.<br><i>${curQ.c.hook}</i>`;
+  document.getElementById('q-next').textContent='Next ▸';
+}
+document.getElementById('q-next').addEventListener('click',chiefNext);
+
+/* ---------- BENCH QUIZ (Current Nine) ---------- */
+let curB=null;
+const BTYPES=['sen2name','name2sen','year','appointer'];
+function weightedNine(){
+  const pool=[];
+  NINE.forEach(j=>{
+    const w=6-Math.min(5,nbox(j.s));
+    for(let i=0;i<w;i++) pool.push(j);
+  });
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function buildBenchQ(j){
+  const t=BTYPES[Math.floor(Math.random()*BTYPES.length)];
+  let text,opts,correct,lbl;
+  const others=k=>shuffle(NINE.filter(x=>x.s!==j.s)).slice(0,k);
+  if(t==='sen2name'){
+    lbl='Seniority → Name';
+    text = j.s===1 ? 'Who is the current Chief Justice of the United States?'
+                   : `Who is #${j.s} in seniority on today's Court?`;
+    correct=j.name; opts=shuffle([j.name,...others(3).map(x=>x.name)]);
+  } else if(t==='name2sen'){
+    lbl='Name → Seniority';
+    text=`Where does ${j.name} rank in seniority on the current Court?`;
+    correct=String(j.s);
+    const wrong=new Set();
+    while(wrong.size<3){const w=1+Math.floor(Math.random()*9);if(w!==j.s)wrong.add(w);}
+    opts=shuffle([correct,...[...wrong].map(String)]);
+  } else if(t==='year'){
+    lbl='Year Joined';
+    text=`In what year did ${j.name} join the Supreme Court?`;
+    correct=String(j.year);
+    const wrong=new Set();
+    while(wrong.size<3){const w=j.year+(Math.floor(Math.random()*9)-4);if(w!==j.year&&w<=2026)wrong.add(w);}
+    opts=shuffle([correct,...[...wrong].map(String)]);
+  } else {
+    lbl='Appointing President';
+    text=`Which president appointed ${j.name}?`;
+    correct=j.pres;
+    const wrongs=shuffle([...new Set(NINE.filter(x=>x.pres!==j.pres).map(x=>x.pres))]).slice(0,3);
+    opts=shuffle([correct,...wrongs]);
+  }
+  return {j,t,text,opts,correct,lbl};
+}
+function benchNext(){
+  curB=buildBenchQ(weightedNine());
+  S.bcount++; saveS();
+  document.getElementById('b-type').textContent=curB.lbl;
+  document.getElementById('b-count').textContent='Question '+S.bcount;
+  document.getElementById('b-text').textContent=curB.text;
+  const v=document.getElementById('b-verdict'); v.className='verdict'; v.innerHTML='';
+  const box=document.getElementById('b-opts'); box.innerHTML='';
+  curB.opts.forEach(o=>{
+    const b=document.createElement('button');
+    b.textContent=o;
+    b.addEventListener('click',()=>benchAnswer(b,o));
+    box.appendChild(b);
+  });
+  document.getElementById('b-next').textContent='Skip ▸';
+}
+function benchAnswer(btn,val){
+  const ok=val===curB.correct;
+  document.querySelectorAll('#b-opts button').forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===curB.correct) b.classList.add('right');
+  });
+  if(!ok) btn.classList.add('wrong');
+  S.answered++; if(ok){S.correct++;S.bstreak++;S.bbest=Math.max(S.bbest,S.bstreak);}else{S.bstreak=0;}
+  bump(S.nboxes,'s'+curB.j.s,ok); saveS();
+  document.getElementById('bstreak').textContent=S.bstreak;
+  document.getElementById('bbest').textContent=S.bbest;
+  const v=document.getElementById('b-verdict');
+  v.className='verdict show '+(ok?'good':'bad');
+  v.innerHTML=(ok?'<b>Sustained!</b> ':'<b>Overruled.</b> ') +
+    `${curB.j.name} — ${curB.j.role}, #${curB.j.s} in seniority, joined ${curB.j.year} (appointed by ${curB.j.pres}).<br><i>${curB.j.hook}</i>`;
+  document.getElementById('b-next').textContent='Next ▸';
+}
+document.getElementById('b-next').addEventListener('click',benchNext);
+
+/* ---------- ORDER MODE ---------- */
+let oSet=[], oPlaced=[];
+function orderNew(){
+  const start=Math.floor(Math.random()*13); // window of 5 from 17
+  oSet=CHIEFS.slice(start,start+5);
+  oPlaced=[];
+  const pool=document.getElementById('o-pool');
+  const bench=document.getElementById('o-bench');
+  bench.innerHTML=''; 
+  document.getElementById('o-verdict').className='verdict';
+  document.getElementById('o-verdict').innerHTML='';
+  pool.innerHTML='';
+  shuffle(oSet).forEach(c=>{
+    const chip=document.createElement('button');
+    chip.className='chip'; chip.textContent=c.name; chip.dataset.n=c.n;
+    chip.addEventListener('click',()=>placeChip(chip,c));
+    pool.appendChild(chip);
+  });
+}
+function placeChip(chip,c){
+  if(chip.classList.contains('placed'))return;
+  chip.classList.add('placed'); chip.disabled=true;
+  oPlaced.push(c);
+  const b=document.createElement('span');
+  b.className='chip placed'; b.textContent=oPlaced.length+'. '+c.name;
+  document.getElementById('o-bench').appendChild(b);
+  if(oPlaced.length===oSet.length) judgeOrder();
+}
+function judgeOrder(){
+  const sorted=[...oSet].sort((a,b)=>a.n-b.n);
+  let allOk=true;
+  document.querySelectorAll('#o-bench .chip').forEach((chip,i)=>{
+    const ok=oPlaced[i].n===sorted[i].n;
+    chip.classList.add(ok?'good':'bad');
+    if(!ok)allOk=false;
+    bump(S.boxes,'c'+oPlaced[i].n,ok);
+  });
+  S.answered+=oSet.length; if(allOk)S.correct+=oSet.length;
+  saveS();
+  const v=document.getElementById('o-verdict');
+  v.className='verdict show '+(allOk?'good':'bad');
+  v.innerHTML= allOk
+    ? '<b>Unanimous decision!</b> A perfect round — every mastery ladder just climbed a rung.'
+    : '<b>Split decision.</b> Correct order: '+sorted.map(c=>`${c.n}. ${c.name}`).join(' → ');
+}
+document.getElementById('o-next').addEventListener('click',orderNew);
+orderNew();
+
+/* ---------- COLLECTION ---------- */
+function stampHTML(title,num,lbl,name,meta,hook,mastered){
+  return `<div class="stamp ${mastered?'mastered':''}">
+    <div class="stamp-inner">
+      <div class="ordinal"><span class="num">${num}</span><span class="lbl">${lbl}</span></div>
+      <div>
+        <h3>${name}</h3>
+        <div class="year">${meta}</div>
+        <div class="hook">${hook}</div>
+      </div>
+    </div>
+  </div>`;
+}
+function renderCollection(){
+  document.getElementById('stamps-chief').innerHTML =
+    CHIEFS.map(c=>stampHTML('c',c.n,'CHIEF',c.name,`Appointed ${c.year} · ${c.pres}`,c.hook,cbox(c.n)>=4)).join('');
+  document.getElementById('stamps-nine').innerHTML =
+    NINE.map(j=>stampHTML('n',j.s,'SEAT',j.name,`${j.role} · Joined ${j.year}`,j.hook,nbox(j.s)>=4)).join('');
+}
+
+/* ---------- PROGRESS ---------- */
+function renderProgress(){
+  document.getElementById('p-answered').textContent=S.answered;
+  document.getElementById('p-acc').textContent = S.answered? Math.round(100*S.correct/S.answered)+'%':'—';
+  const m = CHIEFS.filter(c=>cbox(c.n)>=4).length + NINE.filter(j=>nbox(j.s)>=4).length;
+  document.getElementById('p-mastered').textContent = m+'/26';
+  document.getElementById('p-best').textContent = Math.max(S.best,S.bbest);
+  const bars=document.getElementById('p-bars');
+  bars.innerHTML = ERAS.map(e=>{
+    const total=e.ids.length*5;
+    const got=e.ids.reduce((s,id)=>s+Math.min(5,cbox(id)),0);
+    const pct=Math.round(100*got/total);
+    return `<div class="mbar ${pct===100?'gold':''}">
+      <div class="lab"><span>${e.name}</span><span>${pct}%</span></div>
+      <div class="track"><div class="fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('') + (()=> {
+    const total=NINE.length*5;
+    const got=NINE.reduce((s,j)=>s+Math.min(5,nbox(j.s)),0);
+    const pct=Math.round(100*got/total);
+    return `<div class="mbar ${pct===100?'gold':''}">
+      <div class="lab"><span>The Current Nine</span><span>${pct}%</span></div>
+      <div class="track"><div class="fill" style="width:${pct}%"></div></div>
+    </div>`;
+  })();
+}
+document.getElementById('p-reset').addEventListener('click',()=>{
+  if(confirm('Reset all progress? This clears every stamp, streak, and stat.')){
+    S={boxes:{},nboxes:{},answered:0,correct:0,streak:0,best:0,bstreak:0,bbest:0,qcount:0,bcount:0};
+    saveS();
+    document.getElementById('streak').textContent=0;
+    document.getElementById('best').textContent=0;
+    document.getElementById('bstreak').textContent=0;
+    document.getElementById('bbest').textContent=0;
+    renderProgress(); renderCollection();
+  }
+});
+
+/* init header counters */
+document.getElementById('streak').textContent=S.streak;
+document.getElementById('best').textContent=S.best;
+document.getElementById('bstreak').textContent=S.bstreak;
+document.getElementById('bbest').textContent=S.bbest;
+</script>
+</body>
+</html>
