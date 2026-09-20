@@ -1,0 +1,71 @@
+The Memory Master Series
+Copyright (c) 2025-2026 Kelly McCarty. All rights reserved.
+
+This is not an open-source license. It grants a limited permission to play
+the games and reserves every other right to the copyright holder.
+
+1. Definitions
+
+   "The Work" means everything in this repository and on the published site,
+   including the source code, HTML, CSS, JavaScript, quiz questions and
+   answers, facts, dossiers, timelines, trivia, card designs, artwork, icons,
+   layout, text, and the selection and arrangement of all of the above.
+
+   "The Site" means the published copy of the Work at
+   https://frozensun11.github.io/Memory-Master/ or any successor address
+   operated by the copyright holder.
+
+2. Permission granted
+
+   You may:
+
+   a. Visit the Site and play the games for your own personal, non-commercial
+      use, including for study and education.
+   b. Install the Site on your own devices as a web app (for example via
+      "Add to Home Screen") and keep the copies your browser stores for that
+      purpose.
+   c. Share links to the Site.
+   d. View the source code in this repository for the purpose of
+      understanding how the Site works.
+
+3. Rights reserved
+
+   Except as stated in Section 2, no rights are granted. Without prior
+   written permission from the copyright holder you may not:
+
+   a. Copy, reproduce, download for redistribution, or mirror the Work or
+      any part of it.
+   b. Modify, translate, adapt, or create derivative works from the Work,
+      including reskinning the games or reusing the quiz content, data, or
+      code in another project.
+   c. Distribute, publish, sell, rent, sublicense, or otherwise make the Work
+      or any part of it available to others, whether for free or for a fee.
+   d. Host the Work on any other website, app store, or service.
+   e. Use the Work, or any data extracted from it, to train or evaluate
+      machine learning models.
+   f. Remove or alter any copyright, license, or attribution notice.
+
+4. Third-party materials
+
+   Portraits, flags, and maps shown in the games are loaded at play time from
+   Wikimedia Commons and remain under their own licenses. Fonts are served by
+   Google Fonts under their own licenses. This license covers only the Work
+   as defined above and does not extend to those third-party materials.
+
+5. No warranty
+
+   The Work is provided "as is", without warranty of any kind, express or
+   implied, including but not limited to the warranties of accuracy,
+   merchantability, fitness for a particular purpose, and non-infringement.
+   In no event shall the copyright holder be liable for any claim, damages,
+   or other liability arising from the Work or its use.
+
+6. Termination
+
+   Any use of the Work outside the permission in Section 2 automatically
+   terminates that permission.
+
+7. Contact
+
+   For permission requests, open an issue at
+   https://github.com/frozensun11/Memory-Master.
