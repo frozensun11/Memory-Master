@@ -48,13 +48,17 @@ Fonts load from Google Fonts. Images load from Wikimedia Commons by file name, s
 
 ## Running locally
 
-Open `index.html` directly in a browser, or serve the folder so the service worker and relative links behave exactly as they do on GitHub Pages:
+Open `index.html` directly in a browser, or serve the folder with any static file server so the service worker and relative links behave exactly as they do on GitHub Pages. For example, with Node installed:
+
+```
+npx serve .
+```
+
+Or with Python installed:
 
 ```
 python -m http.server 8000
 ```
-
-Then visit http://localhost:8000/.
 
 ## Deployment
 
