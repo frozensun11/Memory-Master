@@ -3,7 +3,7 @@
  * Bump CACHE_VERSION whenever sw.js or any file in APP_SHELL changes so that
  * installed copies fetch the new files and drop the old cache.
  */
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = 'memory-master-' + CACHE_VERSION;
 
 // Everything needed to open the site and each game with no network.
